@@ -1,6 +1,6 @@
 require 'yaml'
 
-$input = YAML::load(File.open('messages.yml')) #Loads the contents of the messages.yml YAML file
+$input = YAML::load(File.open('calculator_messages.yml')) #Loads the contents of the messages.yml YAML file
 
 def prompt(message)
   puts "=> #{message}"
@@ -113,25 +113,25 @@ loop do #main loop
   result = case operator
            when '1'
              if ((number1.to_f - number1.to_i) != 0) || ((number2.to_f - number2.to_i) != 0) #Condition that checks if a number from the two is a float. (For Question 2)
-               number1.to_f + number2.to_f
+               (number1.to_f + number2.to_f).round(4)
              else
                number1.to_i + number2.to_i
              end
            when '2'
              if ((number1.to_f - number1.to_i) != 0) || ((number2.to_f - number2.to_i) != 0)
-               number1.to_f - number2.to_f
+               (number1.to_f - number2.to_f).round(4)
              else
                number1.to_i - number2.to_i
              end
            when '3'
              if ((number1.to_f - number1.to_i) != 0) || ((number2.to_f - number2.to_i) != 0)
-               number1.to_f * number2.to_f
+               (number1.to_f * number2.to_f).round(4)
              else
                number1.to_i * number2.to_i
              end
            when '4'
              if number2.to_f != 0
-               number1.to_f / number2.to_f
+               (number1.to_f / number2.to_f).round(4)
              else
                $messages[:nonexistent]
              end
