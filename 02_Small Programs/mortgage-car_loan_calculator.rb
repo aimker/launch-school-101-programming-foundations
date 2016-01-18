@@ -1,6 +1,6 @@
 require 'yaml'
 
-$messages = YAML::load(File.open('mortgage_messages.yml'))
+MESSAGES = YAML::load(File.open('mortgage_messages.yml'))
 
 def prompt(message)
   puts "=> #{message}"
@@ -14,7 +14,7 @@ def number?(num)
   end
 end
 
-def float_or_int_format(num) #Method for nicer output formatting.
+def float_or_int_format(num) # Method for nicer output formatting.
   if num.to_f - num.to_i == 0
     num.to_i
   else
@@ -22,7 +22,7 @@ def float_or_int_format(num) #Method for nicer output formatting.
   end
 end
 
-prompt($messages[:welcome])
+prompt(MESSAGES[:welcome])
 
 
 loop do
@@ -31,37 +31,37 @@ loop do
   loan_duration_years = ''
 
   loop do
-    prompt($messages[:insert_amount])
+    prompt(MESSAGES[:insert_amount])
     loan_amount = gets.chomp
     if number?(loan_amount)
-      loan_amount = loan_amount.to_f #Loan amount in float format.
+      loan_amount = loan_amount.to_f # Loan amount in float format.
       break
     else
-      prompt($messages[:invalid_input])
+      prompt(MESSAGES[:invalid_input])
     end
   end
 
   loop do
-    prompt($messages[:insert_apr])
+    prompt(MESSAGES[:insert_apr])
     apr = gets.chomp
     if number?(apr)
       break
     else
-      prompt($messages[:invalid_input])
+      prompt(MESSAGES[:invalid_input])
     end
   end
 
   loop do
-    prompt($messages[:insert_duration])
+    prompt(MESSAGES[:insert_duration])
     loan_duration_years = gets.chomp
     if number?(loan_duration_years)
       break
     else
-      prompt($messages[:invalid_input])
+      prompt(MESSAGES[:invalid_input])
     end
   end
 
-  monthly_interest = apr.to_f/100/12 #monthly interenst in decimal format.
+  monthly_interest = apr.to_f/100/12 # monthly interest in decimal format. apr/ 100(%) / 12 months
   loan_duration_months = (loan_duration_years.to_f * 12).ceil # Loan duration in months.
 
   monthly_payment = ((loan_amount * (monthly_interest * (monthly_interest + 1) ** loan_duration_months)) / (((monthly_interest + 1) ** loan_duration_months) - 1)).round(2)
@@ -79,10 +79,10 @@ loop do
 
   puts result
 
-  prompt($messages[:another_calculation])
+  prompt(MESSAGES[:another_calculation])
   answer = gets.chomp
   if answer.downcase != 'y'
-    prompt($messages[:goodbye])
+    prompt(MESSAGES[:goodbye])
     break
   end
 end
