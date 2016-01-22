@@ -12,12 +12,7 @@ def valid_number?(num)
 end
 
 def number?(num) # 2nd question
-  #num.to_i != 0
-  if num.to_f.to_s == num || num.to_i.to_s == num
-    true
-  else
-    false
-  end
+  num.to_f.to_s == num || num.to_i.to_s == num
 end
 
 def operation_to_message(op)
