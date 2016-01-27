@@ -1,4 +1,4 @@
-#require 'pry'
+require 'pry'
 
 WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
@@ -6,7 +6,7 @@ WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
-WHOS_FIRST = 'choose'
+WHOS_FIRST = 'computer'
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -98,10 +98,11 @@ def player_places_piece!(brd)
   brd[square] = PLAYER_MARKER
 end
 
-def computer_defend_position(brd, square, empty) # Defensive block
+def computer_attack_position(brd, square, empty) # Attacking block
   WINNING_LINES.each do |line|
-    line.each { |place| empty = place if brd[place] == INITIAL_MARKER }
-    if brd.values_at(*line).count(PLAYER_MARKER) == 2 && empty != 0
+    empty = 0
+    line.each { |place| empty = place if brd[place] == INITIAL_MARKER}
+    if brd.values_at(*line).count(COMPUTER_MARKER) == 2 && empty != 0
       square = empty
       return square
       break
@@ -110,10 +111,11 @@ def computer_defend_position(brd, square, empty) # Defensive block
   0
 end
 
-def computer_attack_position(brd, square, empty) # Attacking block
+def computer_defend_position(brd, square, empty) # Defensive block
   WINNING_LINES.each do |line|
-    line.each { |place| empty = place if brd[place] == INITIAL_MARKER}
-    if brd.values_at(*line).count(COMPUTER_MARKER) == 2 && empty != 0
+    empty = 0
+    line.each { |place| empty = place if brd[place] == INITIAL_MARKER }
+    if brd.values_at(*line).count(PLAYER_MARKER) == 2 && empty != 0
       square = empty
       return square
       break
@@ -129,9 +131,11 @@ end
 def computer_places_piece!(brd) # Added AI Defense for Question 3
   square = 0
   empty_square = 0
-
+  #binding.pry
   square = computer_attack_position(brd, square, empty_square) if square == 0
+  #binding.pry
   square = computer_defend_position(brd, square, empty_square) if square == 0
+  #binding.pry
   square = 5 if square == 0 && is_central_available?(brd)
   square = empty_squares(brd).sample if square == 0
   brd[square] = COMPUTER_MARKER
@@ -139,9 +143,9 @@ end
 
 def place_piece!(brd, current_player)
   if current_player == 'player'
-    return player_places_piece!(brd)
+    player_places_piece!(brd)
   elsif current_player == 'computer'
-    return computer_places_piece!(brd)
+    computer_places_piece!(brd)
   end
 end
 
