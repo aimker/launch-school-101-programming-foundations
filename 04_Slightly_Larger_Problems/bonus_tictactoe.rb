@@ -6,6 +6,7 @@ WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
+WHOS_FIRST = 'choose'
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -136,18 +137,60 @@ def computer_places_piece!(brd) # Added AI Defense for Question 3
   brd[square] = COMPUTER_MARKER
 end
 
+def place_piece!(brd, current_player)
+  if current_player == 'player'
+    return player_places_piece!(brd)
+  elsif current_player == 'computer'
+    return computer_places_piece!(brd)
+  end
+end
+
+def alternate_player(current_player)
+  if current_player == 'player'
+    return 'computer'
+  else
+    return 'player'
+  end
+end
+
 player = [0]
 computer = [0]
 
 loop do
+  current_player = WHOS_FIRST
+  if WHOS_FIRST == 'choose' # Condition to choose who plays first
+    loop do
+      prompt "Who would you like to play first?(Player or Computer)"
+      answer = gets.chomp.downcase
+      if answer == 'player'
+        current_player = 'player'
+        prompt "Player plays first."
+        break
+      elsif answer == 'computer'
+        current_player = 'computer'
+        prompt "Computer plays first."
+        break
+      else
+        prompt "Please select a valid choice."
+      end
+    end
+  end
+
   board = initialize_board
 
-  loop do
-    display_board(board, player, computer)
-    player_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
+  # loop do
+  #   display_board(board, player, computer)
+  #   player_places_piece!(board)
+  #   break if someone_won?(board) || board_full?(board)
+  #
+  #   computer_places_piece!(board)
+  #   break if someone_won?(board) || board_full?(board)
+  # end
 
-    computer_places_piece!(board)
+  loop do # improved game loop.
+    display_board(board, player, computer)
+    place_piece!(board, current_player)
+    current_player = alternate_player(current_player)
     break if someone_won?(board) || board_full?(board)
   end
 
@@ -164,6 +207,7 @@ loop do
   elsif computer[-1] == 5
     puts "Computer won the tournament..."
     reset_scores(player, computer)
+
   end
 
   prompt "Play again? (y or n)"
