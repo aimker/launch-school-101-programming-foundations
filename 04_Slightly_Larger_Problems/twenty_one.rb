@@ -1,7 +1,5 @@
 suits = ['Clubs', 'Diamonds', 'Hearts', 'Spades']
 ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
-value = [1, 2, 3, 4 , 5, 6, 7, 8, 9, 10, 10, 10, 10]
-drawn_cards = []
 
 player_hand = [] # The cards that the player has.
 player_total = 0 # The sum of the player's cards.
@@ -23,7 +21,7 @@ end
 def show_hands_player_turn(player, dealer)
   system 'clear'
   puts "Player's hand: #{player}"
-  puts "Dealer's hand: #{dealer.select{|card| card != dealer.first}} + 1 hidden card..."
+  puts "Dealer's hand: #{dealer.select { |card| card != dealer.first }} + 1 hidden card..."
   puts "Your score is #{hand_score(player)}"
 end
 
@@ -41,8 +39,8 @@ def draw_card!(deck, hand)
 end
 
 def hand_score(hand,
-               ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'],
-               value = [1, 2, 3, 4 , 5, 6, 7, 8, 9, 10, 10, 10, 10])
+               ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'])
+  value = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
   score = 0
   hand.each do |card|
     score += value[ranks.index(card[1])]
@@ -82,7 +80,6 @@ def player_turn(deck, player_hand, dealer_hand) # Player turn
   loop do
     puts "Insert 'hit' to hit or 'stay' to stay:"
     answer = gets.chomp
-
     if answer.downcase == 'hit'
       draw_card!(deck, player_hand)
       show_hands_player_turn(player_hand, dealer_hand)
@@ -120,7 +117,7 @@ def reset(player_hand, dealer_hand, player_total, dealer_total) # Reset hands an
 end
 
 loop do
-  deck = initialize_shuffled_deck(suits,ranks) # Initializes the deck
+  deck = initialize_shuffled_deck(suits, ranks) # Initializes the deck
   starting_hands!(player_hand, dealer_hand, deck) # Gives the initial hands
   player_total = hand_score(player_hand) # Calculates the initial player score
   dealer_total = hand_score(dealer_hand) # Calculates the initial dealer score
@@ -131,7 +128,7 @@ loop do
     player_total = player_turn(deck, player_hand, dealer_hand) # Player's turn
 
     sleep 2
-    if !(bust?(player_hand)) # Dealer's turn
+    if !bust?(player_hand) # Dealer's turn
       show_hands_dealer_turn(player_hand, dealer_hand)
       dealer_total = dealer_turn(deck, dealer_hand, player_hand)
     end
