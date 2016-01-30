@@ -3,14 +3,13 @@ ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 value = [1, 2, 3, 4 , 5, 6, 7, 8, 9, 10, 10, 10, 10]
 drawn_cards = []
 
-player_hand = []
-player_total = 0
-dealer_hand = []
-dealer_total = 0
+player_hand = [] # The cards that the player has.
+player_total = 0 # The sum of the player's cards.
+dealer_hand = [] # The cards that the dealer has.
+dealer_total = 0 # The sum of the dealer cards.
 
 def initialize_shuffled_deck(suits, ranks)
   deck = suits.product(ranks).shuffle
-  #puts deck.inspect
   deck
 end
 
@@ -52,11 +51,11 @@ def hand_score(hand,
   score
 end
 
-def bust?(hand)
+def bust?(hand) # Checks if the given player busted.
   hand_score(hand) > 21
 end
 
-def blackjack?(hand)
+def blackjack?(hand) # Checks if there is a blackjack
   hand_score(hand) == 21 && hand.length == 2
 end
 
@@ -78,10 +77,10 @@ def who_won?(player_hand, dealer_hand, player_total, dealer_total)
   end
 end
 
-def player_turn(deck, player_hand, dealer_hand)
+def player_turn(deck, player_hand, dealer_hand) # Player turn
   score = hand_score(player_hand)
   loop do
-    puts "Insert 'hit' to hit or 'stay' to stay:" # Player turn
+    puts "Insert 'hit' to hit or 'stay' to stay:"
     answer = gets.chomp
 
     if answer.downcase == 'hit'
@@ -105,18 +104,18 @@ def dealer_turn(deck, dealer, player)
   loop do
     score = hand_score(dealer)
     break if score >= 17
-    draw_card!(deck, dealer) if score < 17
+    draw_card!(deck, dealer)
     sleep 2
     show_hands_dealer_turn(player, dealer)
   end
   score
 end
 
-def reset(player_hand, dealer_hand, player_total, dealer_total)
-  player_hand = []
-  player_total = 0
-  dealer_hand = []
-  dealer_total = 0
+def reset(player_hand, dealer_hand, player_total, dealer_total) # Reset hands and scores.
+  player_hand = [] # The cards that the player has.
+  player_total = 0 # The sum of the player's cards.
+  dealer_hand = [] # The cards that the dealer has.
+  dealer_total = 0 # The sum of the dealer cards.
   return player_hand, dealer_hand, player_total, dealer_total
 end
 
