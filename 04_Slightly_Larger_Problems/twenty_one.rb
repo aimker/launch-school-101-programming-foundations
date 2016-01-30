@@ -1,6 +1,6 @@
 suits = ['Clubs', 'Diamonds', 'Hearts', 'Spades']
 ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
-value = [[1, 11], 2, 3, 4 , 5, 6, 7, 8, 9, 10, 10, 10, 10]
+value = [1, 2, 3, 4 , 5, 6, 7, 8, 9, 10, 10, 10, 10]
 drawn_cards = []
 
 player_hand = []
@@ -25,34 +25,30 @@ def show_hands_player_turn(player, dealer)
   system 'clear'
   puts "Player's hand: #{player}"
   puts "Dealer's hand: #{dealer.select{|card| card != dealer.first}} + 1 hidden card..."
+  puts "Your score is #{hand_score(player)}"
 end
 
 def show_hands_dealer_turn(player, dealer)
   system 'clear'
   puts "Player's hand: #{player}"
   puts "Dealer's hand: #{dealer}"
+  puts "Now it's the dealer's turn"
+  puts "Your score is #{hand_score(player)}"
+  puts "Dealer's score is #{hand_score(dealer)}"
 end
 
-def draw_card(deck, hand)
+def draw_card!(deck, hand)
   hand << deck.pop
-end
-
-def player_turn(deck, hand)
-
-end
-
-def dealer_turn(deck, hand)
-
 end
 
 def hand_score(hand,
                ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'],
-               value = [[1, 11], 2, 3, 4 , 5, 6, 7, 8, 9, 10, 10, 10, 10])
+               value = [1, 2, 3, 4 , 5, 6, 7, 8, 9, 10, 10, 10, 10])
   score = 0
   hand.each do |card|
-    score += value[ranks.index(card[1])] unless card[1] == 'A'
-    score += 11 if card[1] == 'A'
+    score += value[ranks.index(card[1])]
   end
+  score += 10 if (score + 10) <= 21 && hand.flatten.include?('A') # Given that the rule allows only one Ace to be equal to 11.
   score
 end
 
@@ -65,13 +61,55 @@ def blackjack?(hand)
 end
 
 def who_won?(player_hand, dealer_hand, player_total, dealer_total)
-  if bust?(player_hand)
-    puts "You busted! Dealer won.."
-  elsif bust?(dealer_hand) || player_score > dealer_score
-    puts "You won!!"
+  if blackjack?(player_hand)
+    puts "Blackjack! You won!"
+  elsif blackjack?(dealer_hand)
+    puts "Blackjack! Dealer won..."
+  elsif bust?(player_hand)
+    puts "Bust! Dealer won.."
+  elsif bust?(dealer_hand)
+    puts "Dealer bust! You won!!"
+  elsif player_total > dealer_total
+    puts "You won!"
+  elsif player_total < dealer_total
+    puts "Dealer won..."
   else
-    puts "Dealer won.."
+    puts "It's a tie."
   end
+end
+
+def player_turn(deck, player_hand, dealer_hand)
+  score = hand_score(player_hand)
+  loop do
+    puts "Insert 'hit' to hit or 'stay' to stay:" # Player turn
+    answer = gets.chomp
+
+    if answer.downcase == 'hit'
+      draw_card!(deck, player_hand)
+      show_hands_player_turn(player_hand, dealer_hand)
+      score = hand_score(player_hand)
+      break if bust?(player_hand) || score == 21
+    elsif answer.downcase == 'stay'
+      puts "You chose to stay."
+      break
+    else
+      puts "Please insert a valid answer"
+      next
+    end
+  end
+  score
+end
+
+def dealer_turn(deck, dealer, player)
+  score = 0
+  loop do
+    score = hand_score(dealer)
+    break if score >= 17
+    draw_card!(deck, dealer) if score < 17
+    sleep 2
+    show_hands_dealer_turn(player, dealer)
+  end
+  score
 end
 
 def reset(player_hand, dealer_hand, player_total, dealer_total)
@@ -89,48 +127,21 @@ loop do
   dealer_total = hand_score(dealer_hand) # Calculates the initial dealer score
   show_hands_player_turn(player_hand, dealer_hand) # The visual aspect of the game, that shows the hands.
 
-  loop do # Game takes place here
-    puts "Insert 'hit' to hit or 'stay' to stay:" # Player turn
-    answer = gets.chomp
+  # The drawing begins, unless there was a blackjack in the starting hands.
+  if !(blackjack?(player_hand) || blackjack?(dealer_hand))
+    player_total = player_turn(deck, player_hand, dealer_hand) # Player's turn
 
-    if answer.downcase == 'hit'
-      draw_card(deck, player_hand)
-      show_hands_player_turn(player_hand, dealer_hand)
-      player_total = hand_score(player_hand)
-    elsif answer.downcase == 'stay'
-      player_total = hand_score(player_hand)
-    else
-      puts "Please insert a valid answer"
-      next
-    end
-
-    if bust?(player_hand)
-      puts "You busted! Dealer won.."
-    # elsif bust?(dealer_hand) || player_total > dealer_total
-    #   puts "You won!!"
-    # else
-    #   puts "Dealer won.."
-    # end
-    player_hand, dealer_hand, player_total, dealer_total = reset(player_hand, dealer_hand, player_total, dealer_total)
+    sleep 2
+    if !(bust?(player_hand)) # Dealer's turn
+      show_hands_dealer_turn(player_hand, dealer_hand)
+      dealer_total = dealer_turn(deck, dealer_hand, player_hand)
     end
   end
 
-#puts "Card is #{player_hit}. Your total is #{player_total}."
+  who_won?(player_hand, dealer_hand, player_total, dealer_total) # Prints who wins.
+
+  puts "Play again? (y or n)"
+  answer = gets.chomp
+  player_hand, dealer_hand, player_total, dealer_total = reset(player_hand, dealer_hand, player_total, dealer_total) if answer.downcase.start_with?('y')
+  break unless answer.downcase.start_with?('y')
 end
-
-# Bugs: 1. Ace value is set only at the beginning
-
-
-# if player_hand.last[1] == 'A' && (player_total + 11) <= 21
-#   player_total += value[ranks.index('A')][1]
-#   #player_score = hand_score(player_hand)
-#   puts "You hit #{player_hand.last[1]}; Your total is #{player_total}."
-# elsif player_hand.last[1] == 'A' && (player_total + 11) > 21
-#   player_total += value[ranks.index('A')][0]
-#   #player_score = hand_score(player_hand)
-#   puts "You hit #{player_hand.last[1]}; Your total is #{player_total}."
-# else
-#   #player_total += value[ranks.index(player_hand.last[1])]
-#   player_score = hand_score(player_hand, ranks, value)
-#   puts "You hit #{player_hand.last[1]}; Your total is #{player_score}."
-# end
