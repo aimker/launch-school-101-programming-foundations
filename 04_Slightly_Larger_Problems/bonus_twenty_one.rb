@@ -2,6 +2,7 @@ SUITS = ['H', 'D', 'S', 'C']
 VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 WINNING_VALUE = 21 # Lines 3 & 4 are constants for the needs of question 5
 DEALER_STAYS = 17
+WINNING_TOURNAMENT_SCORE = 5
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -78,6 +79,15 @@ def display_result(dealer_cards, player_cards)
   end
 end
 
+def winner(dealer_cards, player_cards)
+  result = detect_result(dealer_cards, player_cards)
+  if result == :dealer_busted || result == :player
+    return "player"
+  elsif result == :player_busted || result == :dealer
+    return "dealer"
+  end
+end
+
 def play_again?
   puts "-------------"
   prompt "Do you want to play again? (y or n)"
@@ -85,21 +95,35 @@ def play_again?
   answer.downcase.start_with?('y')
 end
 
-def end_of_round(player_cards, dealer_cards) # End of round method for question 3.
-  if busted?(player_cards)
-    display_result(dealer_cards, player_cards)
-  elsif busted?(dealer_cards)
-    prompt "Dealer total is now: #{total(dealer_cards)}"
-    display_result(dealer_cards, player_cards)
-  else
-    puts "=============="
+def end_of_round(player_cards, dealer_cards, player_score, dealer_score) # End of round method for question 3.
+    system 'clear'
     prompt "Dealer has #{dealer_cards}, for a total of: #{total(dealer_cards)}"
     prompt "Player has #{player_cards}, for a total of: #{total(player_cards)}"
-  end
+    display_result(dealer_cards, player_cards)
+    puts "=============="
+    prompt "Player score: #{player_score}"
+    prompt "Dealer score: #{dealer_score}"
+    puts "=============="
+    prompt "New Game" unless player_score == 5 || dealer_score ==5
+    puts "==============" unless player_score == 5 || dealer_score ==5
 end
 
+player_score = 0 # Score keepers for question 5
+dealer_score = 0
+
+prompt "Welcome to Twenty-One!"
 loop do
-  prompt "Welcome to Twenty-One!"
+  if player_score == WINNING_TOURNAMENT_SCORE # Winning condition before beginning the "tournament".
+    prompt "You won the tournament!"
+    player_score = 0
+    dealer_score = 0
+    break unless play_again?
+  elsif dealer_score == WINNING_TOURNAMENT_SCORE
+    prompt "Dealer won the tournament!"
+    player_score = 0
+    dealer_score = 0
+    break unless play_again?
+  end
 
   # initialize vars
   deck = initialize_deck
@@ -111,7 +135,6 @@ loop do
     player_cards << deck.pop
     dealer_cards << deck.pop
   end
-
   prompt "Dealer has #{dealer_cards[0]} and ?"
   prompt "You have: #{player_cards[0]} and #{player_cards[1]}, for a total of #{total(player_cards)}."
 
@@ -137,8 +160,9 @@ loop do
 
   player_total = total(player_cards) # Change as per question 1
   if busted?(player_cards)
-    end_of_round(player_cards, dealer_cards)
-    play_again? ? next : break
+    dealer_score += 1
+    end_of_round(player_cards, dealer_cards, player_score, dealer_score)
+    next # Asks to play again only at the end of the tournament
   else
     prompt "You stayed at #{player_total}"
   end
@@ -156,17 +180,20 @@ loop do
 
   dealer_total = total(dealer_cards) # Change as per question 1
   if busted?(dealer_cards)
-    end_of_round(player_cards, dealer_cards)
-    play_again? ? next : break
+    player_score += 1
+    prompt "Dealer total is now: #{total(dealer_cards)}"
+    end_of_round(player_cards, dealer_cards, player_score, dealer_score)
+    next
   else
     prompt "Dealer stays at #{dealer_total}"
   end
 
   # both player and dealer stays - compare cards!
-  end_of_round(player_cards, dealer_cards)
-  display_result(dealer_cards, player_cards)
+  player_score += 1 if winner(dealer_cards, player_cards) == 'player'
+  dealer_score += 1 if winner(dealer_cards, player_cards) == 'dealer'
+  end_of_round(player_cards, dealer_cards, player_score, dealer_score)
+  #display_result(dealer_cards, player_cards)
 
-  break unless play_again?
 end
 
 prompt "Thank you for playing Twenty-One! Good bye!"
