@@ -108,16 +108,13 @@ def dealer_turn(deck, dealer, player)
   score
 end
 
-def reset(player_hand, dealer_hand, player_total, dealer_total) # Reset hands and scores.
+loop do
+  deck = initialize_shuffled_deck(suits, ranks) # Initializes the deck
   player_hand = [] # The cards that the player has.
   player_total = 0 # The sum of the player's cards.
   dealer_hand = [] # The cards that the dealer has.
   dealer_total = 0 # The sum of the dealer cards.
-  return player_hand, dealer_hand, player_total, dealer_total
-end
 
-loop do
-  deck = initialize_shuffled_deck(suits, ranks) # Initializes the deck
   starting_hands!(player_hand, dealer_hand, deck) # Gives the initial hands
   player_total = hand_score(player_hand) # Calculates the initial player score
   dealer_total = hand_score(dealer_hand) # Calculates the initial dealer score
@@ -138,6 +135,5 @@ loop do
 
   puts "Play again? (y or n)"
   answer = gets.chomp
-  player_hand, dealer_hand, player_total, dealer_total = reset(player_hand, dealer_hand, player_total, dealer_total) if answer.downcase.start_with?('y')
   break unless answer.downcase.start_with?('y')
 end
